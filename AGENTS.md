@@ -1,19 +1,37 @@
 ---
-framework_version: 1.0.0
+framework_version: 1.1.0
 ---
 
 # Agent Guidelines: AI Job Search
 
-This workspace is structured to manage job search activities, scraper tools, CVs, cover letters, and interview preparation.
+- This workspace manages job searches, applications, CVs, cover letters, and interview preparation.
 
-## Thin-Pointer Design (Single Source of Truth)
+## Shared Sources
 
-To prevent duplication and configuration drift across different AI agent frameworks (Claude Code, Google Antigravity, Codex, Cursor, Gemini CLI, etc.), this workspace uses a unified thin-pointer design. All agent runtimes should load the canonical specifications and candidate profiles from the files and directories below:
+- Keep one copy of each candidate fact and workflow rule across agent runtimes.
+- Read the candidate profile in [CLAUDE.md](CLAUDE.md) when performing job-search work.
+- Read the relevant [profile and methodology references](.claude/skills/job-application-assistant/) for the selected workflow.
+- Follow the canonical [commands](.claude/commands/) and [workflow skills](.claude/skills/).
+- Preserve these source locations so upstream updates remain comparable.
+- Candidate facts remain subject to the grounding rules in the canonical application workflow.
+- Repository maintenance does not authorize running onboarding or personalizing the candidate templates.
 
-1. **Personal Candidate Profile:**
-   - The candidate profile, contact details, education, and target preferences are defined in [CLAUDE.md](CLAUDE.md) and the individual profile methodology files under [.claude/skills/job-application-assistant/](.claude/skills/job-application-assistant/) (specifically `01-*.md` etc.).
-2. **Canonical Workflow Specifications:**
-   - The step-by-step instructions and triggers for tasks (setup, scrape, rank, apply, upskill, interview) are defined in the [.claude/](.claude/) directory (specifically under `.claude/skills/` and `.claude/commands/`).
-   - Do not duplicate these rules or specifications. Treat `.claude/` files as the single source of truth.
-3. **Portal Search Skills:**
-   - Job-portal search CLIs live under [.agents/skills/](.agents/skills/) in the portable Agent Skills format (with a `SKILL.md` per portal). Codex and Antigravity discover these automatically; the `/scrape` workflow in [.claude/skills/job-scraper/](.claude/skills/job-scraper/) orchestrates them.
+---
+
+## Codex Entry Points
+
+- Use [job-setup](.agents/skills/job-setup/SKILL.md) to create or update a candidate profile.
+- Use [job-apply](.agents/skills/job-apply/SKILL.md) to evaluate a posting or prepare application documents.
+- Use [job-outcome](.agents/skills/job-outcome/SKILL.md) to record submission, interview stages, or application results.
+- Load the [Codex runtime adapter](codex/runtime.md) before executing those canonical workflows.
+- The adapter changes runtime operations without duplicating the underlying evaluation and writing rules.
+- Follow the [Codex usage guide](codex/README.md) for setup and validation commands.
+- Other agent runtimes continue using the canonical workflows directly.
+
+---
+
+## Portal Search
+
+- Portable portal tools remain under [.agents/skills](.agents/skills/).
+- The canonical [scraper workflow](.claude/skills/job-scraper/SKILL.md) orchestrates installed portal tools.
+- The core Codex adapter does not automatically run searches or connect external accounts.
